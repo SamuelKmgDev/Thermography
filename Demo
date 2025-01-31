@@ -1,0 +1,47 @@
+import cv2
+import numpy as np
+import pandas as pd
+
+# Load the thermal orthomosaic image
+thermal_image = cv2.imread('thermal_orthomosaic.tiff', cv2.IMREAD_ANYDEPTH)
+
+# Example: Load geotagged coordinates (latitude, longitude) for the orthomosaic
+# This assumes you have a function to map pixel coordinates to lat/long
+def pixel_to_latlong(x, y):
+    # Replace with your actual geotagging logic
+    return 37.7749 + (y / 10000), -122.4194 + (x / 10000)  # Example coordinates
+
+# Identify solar panel boundaries (example using contours)
+# Replace this with your actual panel detection logic
+gray = cv2.cvtColor(thermal_image, cv2.COLOR_BGR2GRAY)
+_, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+# Initialize DataFrame to store results
+columns = ["Panel ID", "Min Temp", "Max Temp", "Avg Temp", "Delta Temp", "Latitude", "Longitude"]
+results_df = pd.DataFrame(columns=columns)
+
+# Process each panel
+for i, contour in enumerate(contours):
+    # Get bounding box for the panel
+    x, y, w, h = cv2.boundingRect(contour)
+    
+    # Extract temperature data within the bounding box
+    panel_region = thermal_image[y:y+h, x:x+w]
+    min_temp = np.min(panel_region)
+    max_temp = np.max(panel_region)
+    avg_temp = np.mean(panel_region)
+    delta_temp = max_temp - avg_temp
+    
+    # Get latitude and longitude of the panel center
+    center_x = x + w // 2
+    center_y = y + h // 2
+    latitude, longitude = pixel_to_latlong(center_x, center_y)
+    
+    # Add results to DataFrame
+    results_df.loc[i] = [f"Panel_{i+1}", min_temp, max_temp, avg_temp, delta_temp, latitude, longitude]
+
+# Save results to a CSV file
+results_df.to_csv('solar_panel_temperature_report.csv', index=False)
+
+print("Temperature report generated successfully!")
