@@ -1,0 +1,60 @@
+Great project! For anomaly detection and classification on bifacial monocrystalline solar panels using radiometric JPEGs or orthomosaic TIFFs, you’ll want a model that is strong in feature extraction from images, ideally pre-trained on a large dataset, and adaptable to your specific domain.
+
+### 1. **Model Architecture Recommendations**
+
+#### **A. For Classification (Supervised)**
+- **ResNet (e.g., ResNet50, ResNet101)**
+  - **Why:** Robust, widely used, and available in most deep learning frameworks. Good at extracting features from images.
+- **EfficientNet (e.g., EfficientNet-B0 to B7)**
+  - **Why:** More parameter-efficient and often achieves better accuracy with fewer resources.
+- **DenseNet**
+  - **Why:** Good for fine-grained features, which may help with subtle anomalies.
+
+#### **B. For Anomaly Detection (Unsupervised/Semi-supervised)**
+- **Autoencoders (Convolutional)**
+  - **Why:** Can learn to reconstruct normal images; anomalies show up as high reconstruction error.
+- **Vision Transformers (ViT)**
+  - **Why:** State-of-the-art for many vision tasks, and can be fine-tuned for anomaly detection/classification.
+- **Pre-trained Anomaly Detection Models**
+  - **PaDiM, PatchCore, or SPADE** (PyTorch implementations available)
+  - **Why:** Specifically designed for industrial anomaly detection, often using ImageNet pre-trained backbones.
+
+### 2. **Transfer Learning Strategy**
+- **Start with a model pre-trained on ImageNet** (or similar large dataset).
+- **Fine-tune on your solar panel dataset** (radiometric JPEGs or orthomosaics).
+- If you have labeled data (anomaly types), use classification. If not, use anomaly detection approaches.
+
+### 3. **Input Data Considerations**
+- **Radiometric JPEGs:** Standard CNNs (ResNet, EfficientNet, etc.) work well.
+- **Orthomosaic TIFFs:** If very large, consider tiling the image into patches, then classifying each patch.
+- **Radiometric Data:** If you have access to the raw radiometric values (not just RGB), consider using all available channels as input.
+
+### 4. **Recommended Pre-trained Models for Transfer Learning**
+- **ResNet50/101 (ImageNet)**
+- **EfficientNet-B0/B3 (ImageNet)**
+- **DenseNet121 (ImageNet)**
+- **ViT-B/16 (ImageNet-21k)**
+- **PaDiM, PatchCore, SPADE (for anomaly detection, with ResNet or WideResNet backbones)**
+
+### 5. **Frameworks**
+- **PyTorch** and **TensorFlow/Keras** both have these models available for transfer learning.
+- For industrial anomaly detection, check out [Anomalib](https://github.com/openvinotoolkit/anomalib) (PyTorch-based, supports PaDiM, PatchCore, etc.).
+
+---
+
+## **Summary Table**
+
+| Task Type         | Model (for Transfer Learning) | Notes |
+|-------------------|------------------------------|-------|
+| Classification    | ResNet, EfficientNet, ViT    | Use if you have labeled data |
+| Anomaly Detection | PaDiM, PatchCore, SPADE      | Use if you have few/no labels |
+
+---
+
+## **Next Steps**
+1. **Choose a model** (ResNet50 is a safe starting point for classification; PatchCore for anomaly detection).
+2. **Prepare your data** (patching for large TIFFs, normalization for radiometric data).
+3. **Fine-tune the model** on your dataset.
+4. **Evaluate** on a held-out test set.
+
+If you share more about your dataset size, label availability, or specific anomalies, I can give more tailored advice or code examples!
